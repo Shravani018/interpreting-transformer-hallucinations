@@ -1,5 +1,11 @@
 ### 🧩interpreting-generative-models
-
+<p align="center">
+  <img src="https://img.shields.io/badge/Model-GPT--Neo--125M-blue" />
+  <img src="https://img.shields.io/badge/Focus-Transformer%20Interpretability-red" />
+  <img src="https://img.shields.io/badge/Analysis-Attention%20%26%20Hidden%20States-green" />
+  <img src="https://img.shields.io/badge/Architecture-12%20Layers%20|%20144%20Heads-purple" />
+  <img src="https://img.shields.io/badge/Libraries-PyTorch%20|%20Transformers-skyblue" />
+</p>
 This repository contains exploratory work focused on understanding and inspecting the internal behavior of generative language models during text generation.
 
 Rather than treating models as black boxes, this project examines what internal signals (such as attention weights and hidden states) are available and how they relate to the generated output.
