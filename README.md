@@ -1,4 +1,4 @@
-### 🧩interpreting-generative-models
+### 🧩 Interpreting Generative Models
 <p align="center">
   <img src="https://img.shields.io/badge/Model-GPT--Neo--125M-blue" />
   <img src="https://img.shields.io/badge/Focus-Transformer%20Interpretability-red" />
