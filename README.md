@@ -7,7 +7,7 @@
 ![Architecture](https://img.shields.io/badge/Architecture-12%20Layers%20%C3%97%2012%20Heads-purple)
 ![Libraries](https://img.shields.io/badge/Libraries-PyTorch%20%7C%20Transformers-skyblue)
 
-</p>
+</p align="center">
 
 This repository contains exploratory work focused on understanding and inspecting the internal behavior of generative language models during text generation.
 
