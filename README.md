@@ -1,11 +1,14 @@
 ### 🧩 Interpreting Generative Models
 <p align="center">
-  <img src="https://img.shields.io/badge/Model-GPT--Neo--125M-blue" />
-  <img src="https://img.shields.io/badge/Focus-Transformer%20Interpretability-red" />
-  <img src="https://img.shields.io/badge/Analysis-Attention%20%26%20Hidden%20States-green" />
-  <img src="https://img.shields.io/badge/Architecture-12%20Layers%20|%20144%20Heads-purple" />
-  <img src="https://img.shields.io/badge/Libraries-PyTorch%20|%20Transformers-skyblue" />
+
+![Model](https://img.shields.io/badge/Model-GPT--Neo--125M-blue)
+![Focus](https://img.shields.io/badge/Focus-Transformer%20Interpretability-red)
+![Analysis](https://img.shields.io/badge/Analysis-Attention%20%26%20Hidden%20States-green)
+![Architecture](https://img.shields.io/badge/Architecture-12%20Layers%20%C3%97%2012%20Heads-purple)
+![Libraries](https://img.shields.io/badge/Libraries-PyTorch%20%7C%20Transformers-skyblue)
+
 </p>
+
 This repository contains exploratory work focused on understanding and inspecting the internal behavior of generative language models during text generation.
 
 Rather than treating models as black boxes, this project examines what internal signals (such as attention weights and hidden states) are available and how they relate to the generated output.
@@ -42,7 +45,7 @@ analyzing attention patterns and hidden state evolution.
 
 **Key findings:**
 - Strong head specialization (e.g., Layer 5 Head 8: 99.96% previous-token attention)
-- Layer progression: scattered (early) → sequential (middle) → global (late)
+- Layer progression: scattered (early) -> sequential (middle) -> global (late)
 - Layer 8 dominates first-token attention, suggesting aggregation role
 - Clear computational strategy from broad exploration to focused output
 
@@ -57,7 +60,7 @@ analyzing attention patterns and hidden state evolution.
 - First token norm spikes dramatically in layers 6–8 (~10k), directly corroborating 
   the aggregation role identified in notebook 02
 - Representation directions are highly stable through middle layers (cosine sim ~1.0) 
-  but undergo sharp geometric reorganization at transitions 0→1 and 11→12
+  but undergo sharp geometric reorganization at transitions 0->1 and 11->12
 - Largest Euclidean shifts occur at boundary layers; middle layers (3–4, 7–9) show 
   minimal change (~100–150), confirming a stable mid-network processing plateau
 - Layers 2–9 form a high-similarity block (0.91–1.00), while layers 0 and 12 are 
@@ -74,7 +77,6 @@ analyzing attention patterns and hidden state evolution.
 ---
 
 #### Status
-
-Active development with completed baseline and attention analyses.
+Active development baseline, attention completed and hidden state analyses in progress.
 
 ---
