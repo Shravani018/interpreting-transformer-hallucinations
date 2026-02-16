@@ -1,0 +1,15 @@
+
+model:
+  name: "EleutherAI/gpt-neo-125M"
+  trust_remote_code: false
+  torch_dtype: "float32"      
+inference:
+  max_new_tokens: 40
+  do_sample: false
+  repetition_penalty: 10.0
+
+analysis:
+  prompt: "Marie Curie was a physicist who discovered radium. She was born in"
+  attention_entropy_focused_threshold: 0.3
+  attention_entropy_broad_threshold: 0.7
+  top_n_heads: 5
