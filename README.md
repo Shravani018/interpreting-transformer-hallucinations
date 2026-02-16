@@ -92,7 +92,7 @@ Compares three attribution methods:
 
 ---
 
-### 05: Interactive Visualizations
+### [05: Interactive Visualizations](https://shravani018.github.io/interpreting-transformer-hallucinations/)
 
 Creates three interactive visualizations using attribution data.
 
