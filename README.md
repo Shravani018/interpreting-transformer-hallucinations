@@ -117,7 +117,7 @@ Creates three interactive visualizations using attribution data.
 
 ## Key Insights
 
-### Hallucination follows a sparse, structured circuit.
+### 1. Hallucination follows a sparse, structured circuit in GPT-Neo-125M.
 
 The model generates "United States" through a specific pathway:
 - **Input**: Period "." and "who" signal biographical context
@@ -126,19 +126,19 @@ The model generates "United States" through a specific pathway:
 - **Output (L11_H4)**: Pattern triggers nationality retrieval from training data
 - **Result**: Wrong nationality generated
 
-### Attention Misleads
+### 2. Attention Misleads
 
 Raw attention suggests "Marie" drives output (36% attention). Integrated Gradients reveals grammatical structure (period + relative clause) causes 52% of output. What models look at does not equal what causes outputs.
 
-### Sparse Circuits Dominate
+### 3. Sparse Circuits Dominate
 
 Attribution is highly concentrated in approximately 10 heads(7%), with the remaining heads contributing marginally. The remaining 93% are passengers. This suggests interventions like ablating L11_H4 could fix errors without retraining.
 
-### In this case, structural tokens contribute more to the output than semantic tokens.
+### 4. In this case, structural tokens contribute more to the output than semantic tokens.
 
 Sentence structure (punctuation, clauses) drives factual errors more reliably than semantic content. This suggests the error may arise from internal circuit structure rather than simple lack of factual exposure.
 
-### Stable Geometry Enables Error Propagation
+### 5. Stable Geometry Enables Error Propagation
 
 Layers 2-11 share stable geometry (0.86-1.00 similarity). This acts as a highway for structural signals to flow from input → middle → output. The hallucination leverages this stability.
 
@@ -192,6 +192,14 @@ Output: "...born in the United States..."
 - **Parameters**: 125,198,592
 - **Vocabulary**: 50,257 tokens
 - **Max context**: 2048 tokens
+
+---
+## Limitations
+- Single-case analysis (one hallucination)
+- No head ablation or intervention experiments
+- Small model (125M parameters)
+
+This is a mechanistic case study, not a universal theory of hallucination.
 
 ---
 
