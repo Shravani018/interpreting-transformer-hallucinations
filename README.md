@@ -16,10 +16,10 @@ An exploration of how GPT-Neo-125M generates factual hallucinations, tracing the
 | Finding | Evidence |
 |---------|----------|
 | **Sparse Computation** | Attribution is highly concentrated in ~10 heads, with the remaining heads contributing minimally |
-| **Circuit Structure** | L0_H2 (encoding) -> L6_H4 (aggregation) -> L11_H4 (output) |
+| **Circuit Structure** | L0_H2 (encoding) → L6_H4 (aggregation) → L11_H4 (output) |
 | **Attention vs Causation** | Model looks at "Marie" (36%) but period/who cause output (52%) |
-| **Geometric Stability** | Layers 2-11 share 0.86-1.00 similarity |
-| **First-Token Hubs** | Layers 6-10 aggregate 79-85% attention on first token |
+| **Geometric Stability** | Layers 2–11 share 0.86–1.00 similarity |
+| **First-Token Hubs** | Layers 6–10 aggregate 79–85% attention on first token |
 
 ---
 
@@ -27,9 +27,9 @@ An exploration of how GPT-Neo-125M generates factual hallucinations, tracing the
 
 ### 01: Model Internals
 
-Establishes foundation for transformer analysis.
+Establishes the foundation for transformer analysis.
 
-- Loads GPT-Neo-125M with attention/hidden state tracking
+- Loads GPT-Neo-125M with attention and hidden state tracking
 - Generates text: "Marie Curie was born in the United States..."
 - Confirms capture of 40 generation steps across 12 layers
 - Validates tensor shapes and data extraction
@@ -42,15 +42,15 @@ Establishes foundation for transformer analysis.
 
 Classifies all 144 attention heads by specialization.
 
-- Computes entropy, previous-token attention, first-token attention per head
+- Computes entropy, previous-token attention, and first-token attention per head
 - Identifies layer-wise computational strategy evolution
 - Visualizes attention patterns with heatmaps
 
 **Key Findings**:
 - 55 heads show strong first-token attention (>0.5)
-- 52 heads highly focused (entropy <0.3)
+- 52 heads are highly focused (entropy <0.3)
 - Layer 5: Peak previous-token attention (~0.39) for sequential pattern detection
-- Layers 6-10: Dominant first-token hubs (0.79-0.85) for global aggregation
+- Layers 6–10: Dominant first-token hubs (0.79–0.85) for global aggregation
 - Strategy progression: Broad context → Sequential → Global → Sharp output
 
 ---
@@ -60,23 +60,22 @@ Classifies all 144 attention heads by specialization.
 Tracks token representation evolution across layers.
 
 - Extracts hidden states for all tokens across 13 layers
-- Computes L2 norms, cosine similarity, Euclidean distances
+- Computes L2 norms, cosine similarity, and Euclidean distances
 - Analyzes layer-to-layer similarity matrices
 
 **Key Findings**:
-- Layer 0: Isolated (0.00-0.03 similarity) - raw embeddings
-- Layers 2-11: High similarity (0.86-1.00) - stable processing regime
-- Layer 12: Isolated (0.12-0.19) - output projection
-- Norm spikes: First token reaches ~10k at Layers 6-8 (aggregation phase)
+- Layer 0: Isolated (0.00–0.03 similarity) - raw embeddings
+- Layers 2–11: High similarity (0.86–1.00) - stable processing regime
+- Layer 12: Isolated (0.12–0.19) - output projection
+- Norm spikes: First token reaches ~10k at Layers 6–8 (aggregation phase)
 - Geometric stability: Cosine similarity ~1.0 through middle layers
 
 ---
 
 ### 04: Attribution Analysis
 
-Identifies causal drivers of hallucination.
+Identifies causal drivers of hallucination by comparing three attribution methods:
 
-Compares three attribution methods:
 1. Raw Attention (baseline)
 2. Attention Rollout (accumulated flow)
 3. Integrated Gradients (gradient-based causation)
@@ -84,9 +83,9 @@ Compares three attribution methods:
 **Key Findings**:
 - Target token: "United" (position 16)
 - Raw attention focuses on "Marie" (36%), "in" (24%)
-- Integrated Gradients reveals period "." (29%), "who" (23%) actually cause output
+- Integrated Gradients reveals period "." (29%) and "who" (23%) actually cause the output
 - Top heads: L11_H4 (score=1.0), L0_H2 (0.99), L6_H4 (0.99)
-- Divergence proves attention shows where model looks, not what causes output
+- Divergence proves attention shows where the model looks, not what causes the output
 
 **Output**: Saves `04_attribution_data.json` for visualization
 
@@ -107,7 +106,7 @@ Creates three interactive visualizations using attribution data.
 - Confirms 93% of heads contribute minimally
 
 **3D Circuit Graph**
-- Network visualization positioned by (layer, head, attribution_score)
+- Network visualization positioned by (layer, head, attribution score)
 - Shows vertical stratification of important heads
 - Interactive 3D rotation
 
@@ -117,7 +116,7 @@ Creates three interactive visualizations using attribution data.
 
 ## Key Insights
 
-### 1. Hallucination follows a sparse, structured circuit in GPT-Neo-125M.
+### 1. Hallucination follows a sparse, structured circuit in GPT-Neo-125M
 
 The model generates "United States" through a specific pathway:
 - **Input**: Period "." and "who" signal biographical context
@@ -126,21 +125,21 @@ The model generates "United States" through a specific pathway:
 - **Output (L11_H4)**: Pattern triggers nationality retrieval from training data
 - **Result**: Wrong nationality generated
 
-### 2. Attention Misleads
+### 2. Attention misleads
 
-Raw attention suggests "Marie" drives output (36% attention). Integrated Gradients reveals grammatical structure (period + relative clause) causes 52% of output. What models look at does not equal what causes outputs.
+Raw attention suggests "Marie" drives the output (36%). Integrated Gradients reveals grammatical structure - period and relative clause - causes 52% of the output. What a model attends to does not equal what causes its outputs.
 
-### 3. Sparse Circuits Dominate
+### 3. Sparse circuits dominate
 
-Attribution is highly concentrated in approximately 10 heads(7%), with the remaining heads contributing marginally. The remaining 93% are passengers. This suggests interventions like ablating L11_H4 could fix errors without retraining.
+Attribution is highly concentrated in approximately 10 heads (7%), with the remaining 93% contributing marginally. This suggests targeted interventions like ablating L11_H4 could correct errors without retraining.
 
-### 4. In this case, structural tokens contribute more to the output than semantic tokens.
+### 4. Structural tokens contribute more to the output than semantic tokens
 
 Sentence structure (punctuation, clauses) drives factual errors more reliably than semantic content. This suggests the error may arise from internal circuit structure rather than simple lack of factual exposure.
 
-### 5. Stable Geometry Enables Error Propagation
+### 5. Stable geometry enables error propagation
 
-Layers 2-11 share stable geometry (0.86-1.00 similarity). This acts as a highway for structural signals to flow from input → middle → output. The hallucination leverages this stability.
+Layers 2–11 share stable geometry (0.86–1.00 similarity), acting as a highway for structural signals to flow from input through middle layers to output. The hallucination leverages this stability.
 
 ---
 
@@ -151,26 +150,26 @@ Layers 2-11 share stable geometry (0.86-1.00 similarity). This acts as a highway
 ```
 Input: "Marie Curie was a physicist who discovered radium."
          ↓
-[01] Model Internals → attention + hidden states captured
+[01] Model Internals    → attention + hidden states captured
          ↓
-[02] Attention Analysis → First-token hubs in L6-10
+[02] Attention Analysis → first-token hubs in L6–10
          ↓
-[03] Geometry Analysis → Stable manifold in L2-11
+[03] Geometry Analysis  → stable manifold in L2–11
          ↓
-[04] Attribution → "." and "who" cause "United"
+[04] Attribution        → "." and "who" cause "United"
          ↓
-[05] Visualization → L0_H2 → L6_H4 → L11_H4 circuit
+[05] Visualization      → L0_H2 → L6_H4 → L11_H4 circuit
          ↓
 Output: "...born in the United States..."
 ```
 
 ### Attribution Methods
 
-**Raw Attention**: Baseline showing where model attends
+**Raw Attention** - Baseline showing where the model attends.
 
-**Attention Rollout**: Accumulated attention with residual connections across layers
+**Attention Rollout** - Accumulated attention with residual connections across layers.
 
-**Integrated Gradients**: Gradient of output with respect to input, integrated along interpolation path (50 steps). Based on [Sundararajan et al., ICML 2017](https://arxiv.org/abs/1703.01365)
+**Integrated Gradients** - Gradient of output with respect to input, integrated along an interpolation path (50 steps). Based on [Sundararajan et al., ICML 2017](https://arxiv.org/abs/1703.01365).
 
 ### Metrics
 
@@ -184,17 +183,21 @@ Output: "...born in the United States..."
 
 ## Model Architecture
 
-- **Base**: EleutherAI/gpt-neo-125M
-- **Type**: Autoregressive transformer
-- **Layers**: 12
-- **Heads per layer**: 12 (144 total)
-- **Hidden dimensions**: 768
-- **Parameters**: 125,198,592
-- **Vocabulary**: 50,257 tokens
-- **Max context**: 2048 tokens
+| Property | Value |
+|----------|-------|
+| Base | EleutherAI/gpt-neo-125M |
+| Type | Autoregressive transformer |
+| Layers | 12 |
+| Heads per layer | 12 (144 total) |
+| Hidden dimensions | 768 |
+| Parameters | 125,198,592 |
+| Vocabulary | 50,257 tokens |
+| Max context | 2048 tokens |
 
 ---
+
 ## Limitations
+
 - Single-case analysis (one hallucination)
 - No head ablation or intervention experiments
 - Small model (125M parameters)
@@ -205,12 +208,8 @@ This is a mechanistic case study, not a universal theory of hallucination.
 
 ## References
 
-This project builds on findings from:
-
-- [Quantifying Attention Flow in Transformers](https://arxiv.org/abs/2005.00928) (Abnar & Zuidema, ACL 2020) - Attention rollout methodology
-- [In-context Learning and Induction Heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) (Olsson et al., Anthropic 2022) - Circuit discovery in transformers
-- [Axiomatic Attribution for Deep Networks](https://arxiv.org/abs/1703.01365) (Sundararajan et al., ICML 2017) - Integrated Gradients method
-- [Attention is not Explanation](https://arxiv.org/abs/1902.10186) (Jain & Wallace, 2019) - Attention vs causation
-- [Transformer Feed-Forward Layers Are Key-Value Memories](https://arxiv.org/abs/2012.14913) (Geva et al., 2021) - Middle layer representations
-
----
+- [Quantifying Attention Flow in Transformers](https://arxiv.org/abs/2005.00928) - Abnar & Zuidema, ACL 2020. Attention rollout methodology.
+- [In-context Learning and Induction Heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) - Olsson et al., Anthropic 2022. Circuit discovery in transformers.
+- [Axiomatic Attribution for Deep Networks](https://arxiv.org/abs/1703.01365) - Sundararajan et al., ICML 2017. Integrated Gradients method.
+- [Attention is not Explanation](https://arxiv.org/abs/1902.10186) - Jain & Wallace, 2019. Attention vs causation.
+- [Transformer Feed-Forward Layers Are Key-Value Memories](https://arxiv.org/abs/2012.14913) - Geva et al., 2021. Middle layer representations.
