@@ -2,8 +2,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Model-GPT--Neo--125M-blue" alt="Model">
-  <img src="https://img.shields.io/badge/Focus-Transformer%20Interpretability-red" alt="Focus">
-  <img src="https://img.shields.io/badge/Analysis-Attention%20%7C%20Geometry%20%7C%20Attribution-yellow" alt="Analysis">
+  <img src="https://img.shields.io/badge/Focus-Transformer%20Interpretability-pink" alt="Focus">
+  <img src="https://img.shields.io/badge/Analysis-Attention%20%7C%20Geometry%20%7C%20Attribution-navy" alt="Analysis">
   <img src="https://img.shields.io/badge/Architecture-12%20Layers%20%C3%97%2012%20Heads-purple" alt="Architecture">
 </p>
 
