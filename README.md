@@ -11,7 +11,7 @@ An exploration of how GPT-Neo-125M generates factual hallucinations, tracing the
 
 ---
 
-## Main Results
+### Main Results
 
 | Finding | Evidence |
 |---------|----------|
@@ -23,9 +23,9 @@ An exploration of how GPT-Neo-125M generates factual hallucinations, tracing the
 
 ---
 
-## Notebooks
+### Notebooks
 
-### 01: Model Internals
+#### 01: Model Internals
 
 Establishes the foundation for transformer analysis.
 
@@ -38,7 +38,7 @@ Establishes the foundation for transformer analysis.
 
 ---
 
-### 02: Attention Pattern Analysis
+#### 02: Attention Pattern Analysis
 
 Classifies all 144 attention heads by specialization.
 
@@ -55,7 +55,7 @@ Classifies all 144 attention heads by specialization.
 
 ---
 
-### 03: Hidden State Trajectory Analysis
+#### 03: Hidden State Trajectory Analysis
 
 Tracks token representation evolution across layers.
 
@@ -72,7 +72,7 @@ Tracks token representation evolution across layers.
 
 ---
 
-### 04: Attribution Analysis
+#### 04: Attribution Analysis
 
 Identifies causal drivers of hallucination by comparing three attribution methods:
 
@@ -91,7 +91,7 @@ Identifies causal drivers of hallucination by comparing three attribution method
 
 ---
 
-### [05:Visualizations](https://shravani018.github.io/interpreting-transformer-hallucinations/)
+#### [05:Visualizations](https://shravani018.github.io/interpreting-transformer-hallucinations/)
 
 Creates three interactive visualizations using attribution data.
 
@@ -114,9 +114,9 @@ Creates three interactive visualizations using attribution data.
 
 ---
 
-## Key Insights
+### Key Insights
 
-### 1. Hallucination follows a sparse, structured circuit in GPT-Neo-125M
+#### 1. Hallucination follows a sparse, structured circuit in GPT-Neo-125M
 
 The model generates "United States" through a specific pathway:
 - **Input**: Period "." and "who" signal biographical context
@@ -125,27 +125,27 @@ The model generates "United States" through a specific pathway:
 - **Output (L11_H4)**: Pattern triggers nationality retrieval from training data
 - **Result**: Wrong nationality generated
 
-### 2. Attention misleads
+#### 2. Attention misleads
 
 Raw attention suggests "Marie" drives the output (36%). Integrated Gradients reveals grammatical structure - period and relative clause - causes 52% of the output. What a model attends to does not equal what causes its outputs.
 
-### 3. Sparse circuits dominate
+#### 3. Sparse circuits dominate
 
 Attribution is highly concentrated in approximately 10 heads (7%), with the remaining 93% contributing marginally. This suggests targeted interventions like ablating L11_H4 could correct errors without retraining.
 
-### 4. Structural tokens contribute more to the output than semantic tokens
+#### 4. Structural tokens contribute more to the output than semantic tokens
 
 Sentence structure (punctuation, clauses) drives factual errors more reliably than semantic content. This suggests the error may arise from internal circuit structure rather than simple lack of factual exposure.
 
-### 5. Stable geometry enables error propagation
+#### 5. Stable geometry enables error propagation
 
 Layers 2–11 share stable geometry (0.86–1.00 similarity), acting as a highway for structural signals to flow from input through middle layers to output. The hallucination leverages this stability.
 
 ---
 
-## Methodology
+### Methodology
 
-### Analysis Pipeline
+#### Analysis Pipeline
 
 ```
 Input: "Marie Curie was a physicist who discovered radium."
@@ -163,7 +163,7 @@ Input: "Marie Curie was a physicist who discovered radium."
 Output: "...born in the United States..."
 ```
 
-### Attribution Methods
+#### Attribution Methods
 
 **Raw Attention** - Baseline showing where the model attends.
 
@@ -171,7 +171,7 @@ Output: "...born in the United States..."
 
 **Integrated Gradients** - Gradient of output with respect to input, integrated along an interpolation path (50 steps). Based on [Sundararajan et al., ICML 2017](https://arxiv.org/abs/1703.01365).
 
-### Metrics
+#### Metrics
 
 - **Entropy**: Shannon entropy of attention distribution (normalized)
 - **Cosine Similarity**: Angular distance between hidden state vectors
@@ -181,7 +181,7 @@ Output: "...born in the United States..."
 
 ---
 
-## Model Architecture
+### Model Architecture
 
 | Property | Value |
 |----------|-------|
@@ -196,7 +196,7 @@ Output: "...born in the United States..."
 
 ---
 
-## Limitations
+### Limitations
 
 - Single-case analysis (one hallucination)
 - No head ablation or intervention experiments
@@ -206,7 +206,7 @@ This is a mechanistic case study, not a universal theory of hallucination.
 
 ---
 
-## References
+### References
 
 - [Quantifying Attention Flow in Transformers](https://arxiv.org/abs/2005.00928) - Abnar & Zuidema, ACL 2020. Attention rollout methodology.
 - [In-context Learning and Induction Heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) - Olsson et al., Anthropic 2022. Circuit discovery in transformers.
