@@ -91,7 +91,7 @@ Identifies causal drivers of hallucination by comparing three attribution method
 
 ---
 
-### [05: Interactive Visualizations](https://shravani018.github.io/interpreting-transformer-hallucinations/)
+### [05:Visualizations](https://shravani018.github.io/interpreting-transformer-hallucinations/)
 
 Creates three interactive visualizations using attribution data.
 
