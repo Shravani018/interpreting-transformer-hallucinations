@@ -1,160 +1,463 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Interpreting Transformer Hallucinations</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interpreting Transformer Hallucinations</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: rgba(15, 23, 42, 0.72);
+      --panel: rgba(17, 24, 39, 0.82);
+      --panel-border: rgba(148, 163, 184, 0.16);
+      --text: #e5eefc;
+      --muted: #9aa7bd;
+      --accent: #7cdbff;
+      --accent-2: #7c8cff;
+      --success: #34d399;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+      --radius: 20px;
+      --radius-sm: 14px;
+      --max: 1180px;
+    }
 
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background: #0d1117;
-            color: #c9d1d9;
-        }
+```
+* {
+  box-sizing: border-box;
+}
 
-        h1 {
-            color: #f0f6fc;
-            border-bottom: 2px solid #58a6ff;
-            padding-bottom: 12px;
-            margin-bottom: 10px;
-        }
+html {
+  scroll-behavior: smooth;
+}
 
-        .subtitle {
-            color: #8b949e;
-            margin-top: 0;
-            font-size: 18px;
-        }
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(124, 219, 255, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(124, 140, 255, 0.14), transparent 30%),
+    linear-gradient(180deg, #07111f 0%, #0b1020 55%, #090d18 100%);
+  min-height: 100vh;
+  line-height: 1.6;
+  padding: 28px 18px 40px;
+}
 
-        .viz-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 24px;
-            margin-top: 40px;
-        }
+.page {
+  max-width: var(--max);
+  margin: 0 auto;
+}
 
-        .viz-card {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 10px;
-            padding: 24px;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.86), rgba(17, 24, 39, 0.62));
+  border: 1px solid var(--panel-border);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  padding: 34px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
 
-        .viz-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.7);
-        }
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: auto -10% -35% auto;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(124, 219, 255, 0.18), transparent 65%);
+  pointer-events: none;
+}
 
-        .viz-card h3 {
-            margin-top: 0;
-            color: #58a6ff;
-            font-size: 20px;
-        }
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b8c7e3;
+  background: rgba(124, 140, 255, 0.12);
+  border: 1px solid rgba(124, 140, 255, 0.2);
+  padding: 8px 12px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
 
-        .viz-card p {
-            color: #8b949e;
-            line-height: 1.6;
-            font-size: 15px;
-        }
+.eyebrow .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 0 6px rgba(124, 219, 255, 0.08);
+  flex: 0 0 auto;
+}
 
-        .viz-link {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 9px 18px;
-            background: #238636;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: background 0.2s ease;
-        }
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3.8vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
 
-        .viz-link:hover {
-            background: #2ea043;
-        }
+.subtitle {
+  margin: 16px 0 0;
+  max-width: 72ch;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.4vw, 1.1rem);
+}
 
-        .back-link {
-            margin-top: 60px;
-            padding-top: 20px;
-            border-top: 1px solid #30363d;
-            text-align: center;
-        }
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
 
-        .back-link a {
-            color: #58a6ff;
-            text-decoration: none;
-            font-weight: 500;
-        }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
 
-        .back-link a:hover {
-            text-decoration: underline;
-        }
+.chip strong {
+  color: var(--text);
+  font-weight: 700;
+}
 
-        @media (max-width: 600px) {
-            body {
-                padding: 30px 15px;
-            }
-        }
-    </style>
+.section {
+  margin-top: 28px;
+}
+
+.section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  color: #dbe7fb;
+}
+
+.section-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 18px;
+}
+
+.viz-card {
+  grid-column: span 4;
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  overflow: hidden;
+  min-height: 270px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.viz-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  opacity: 0.95;
+}
+
+.viz-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(124, 219, 255, 0.35);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.48);
+  background: rgba(17, 24, 39, 0.9);
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: linear-gradient(135deg, rgba(124, 219, 255, 0.14), rgba(124, 140, 255, 0.14));
+  border: 1px solid rgba(124, 219, 255, 0.14);
+  font-size: 1.25rem;
+}
+
+.viz-card h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: #eff6ff;
+}
+
+.viz-card p {
+  margin: 12px 0 0;
+  color: #afbbcf;
+  font-size: 0.98rem;
+}
+
+.insight {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.15);
+  color: #d8faea;
+  font-size: 0.95rem;
+}
+
+.viz-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  margin-top: 18px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(35, 134, 54, 1), rgba(46, 160, 67, 1));
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease;
+  box-shadow: 0 10px 24px rgba(46, 160, 67, 0.2);
+}
+
+.viz-link:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 12px 28px rgba(46, 160, 67, 0.28);
+}
+
+.viz-link:focus-visible,
+.back-link a:focus-visible {
+  outline: 3px solid rgba(124, 219, 255, 0.6);
+  outline-offset: 3px;
+}
+
+.back-link {
+  margin-top: 26px;
+  padding-top: 20px;
+  text-align: center;
+}
+
+.back-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #9cc9ff;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.back-link a:hover {
+  background: rgba(124, 219, 255, 0.08);
+  border-color: rgba(124, 219, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.footer-note {
+  margin-top: 18px;
+  text-align: center;
+  color: #8190a8;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1000px) {
+  .viz-card {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 680px) {
+  body {
+    padding: 16px 12px 28px;
+  }
+
+  .hero {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .viz-card {
+    grid-column: span 12;
+    min-height: auto;
+    padding: 20px;
+  }
+
+  .section-head {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .hero-meta {
+    gap: 8px;
+  }
+
+  .chip {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .viz-card:hover,
+  .viz-link:hover,
+  .back-link a:hover {
+    transform: none;
+  }
+}
+```
+
+  </style>
 </head>
-
 <body>
+  <main class="page">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="eyebrow"><span class="dot"></span> Interactive interpretability dashboard</div>
+      <h1 id="page-title">Interpreting Transformer Hallucinations</h1>
+      <p class="subtitle">
+        Explore how information moves from input tokens through attention heads to hallucinated outputs in GPT-Neo-125M.
+        The visuals below highlight the narrow circuits that appear to drive the model’s mistaken prediction.
+      </p>
 
-    <h1>Interpreting Transformer Hallucinations</h1>
-    <p class="subtitle">
-        Interactive exploration of information flow from input tokens through attention heads to hallucinated outputs in GPT-Neo-125M.
-    </p>
+```
+  <div class="hero-meta" aria-label="Key details">
+    <div class="chip"><strong>Model:</strong> GPT-Neo-125M</div>
+    <div class="chip"><strong>Focus:</strong> Hallucinated output paths</div>
+    <div class="chip"><strong>Theme:</strong> Attention head attribution</div>
+  </div>
+</section>
 
-    <div class="viz-grid">
-
-        <div class="viz-card">
-            <h3>🌊 Sankey Flow Diagram</h3>
-            <p>
-                Traces information flow from structural tokens (".", "who") through attention heads
-                (L0_H2 → L6_H4 → L11_H4) to output token <strong>"United"</strong>.
-            </p>
-            <p>
-                <strong>Insight:</strong> Structural cues, not semantic entity tokens, dominate causal contribution.
-            </p>
-            <a href="05_sankey_flow.html" class="viz-link">View Sankey →</a>
-        </div>
-
-        <div class="viz-card">
-            <h3>🔥 Head Attribution Heatmap</h3>
-            <p>
-                12×12 matrix of attribution scores across all 144 attention heads.
-                Reveals sparse computation concentrated in a small subset of heads.
-            </p>
-            <p>
-                <strong>Insight:</strong> Dominant activity localizes to Layers 0, 6, and 11.
-            </p>
-            <a href="05_head_heatmap.html" class="viz-link">View Heatmap →</a>
-        </div>
-
-        <div class="viz-card">
-            <h3>🕸️ 3D Circuit Graph</h3>
-            <p>
-                Network visualization of top-20 attention heads positioned by
-                (layer, head index, attribution score). Interactive 3D rotation.
-            </p>
-            <p>
-                <strong>Insight:</strong> The hallucination propagates through a narrow vertical circuit.
-            </p>
-            <a href="05_circuit_graph.html" class="viz-link">View 3D Graph →</a>
-        </div>
-
+<section class="section" aria-labelledby="visualizations-title">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title" id="visualizations-title">Visual explorations</h2>
+      <p class="section-note">Three linked views that reveal the same phenomenon from different angles.</p>
     </div>
+  </div>
 
-    <div class="back-link">
-    <a href="https://github.com/Shravani018/interpreting-transformer-hallucinations"
-       target="_blank"
-       rel="noopener noreferrer">
-        ← Back to Repository
-    </a>
+  <div class="viz-grid">
+    <article class="viz-card">
+      <div>
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🌊</div>
+          <div>
+            <h3>Sankey Flow Diagram</h3>
+            <p>
+              Traces information flow from structural tokens such as <strong>"."</strong> and <strong>"who"</strong>
+              through attention heads like <strong>L0_H2 → L6_H4 → L11_H4</strong> to the output token
+              <strong>"United"</strong>.
+            </p>
+          </div>
+        </div>
+        <div class="insight">
+          <strong>Insight:</strong> Structural cues, not semantic entity tokens, dominate causal contribution.
+        </div>
+      </div>
+      <a href="05_sankey_flow.html" class="viz-link">View Sankey →</a>
+    </article>
+
+    <article class="viz-card">
+      <div>
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🔥</div>
+          <div>
+            <h3>Head Attribution Heatmap</h3>
+            <p>
+              A 12×12 matrix of attribution scores across all 144 attention heads, showing how sparse
+              computation concentrates in a small subset of the network.
+            </p>
+          </div>
+        </div>
+        <div class="insight">
+          <strong>Insight:</strong> Dominant activity localizes to Layers 0, 6, and 11.
+        </div>
+      </div>
+      <a href="05_head_heatmap.html" class="viz-link">View Heatmap →</a>
+    </article>
+
+    <article class="viz-card">
+      <div>
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🕸️</div>
+          <div>
+            <h3>3D Circuit Graph</h3>
+            <p>
+              A network visualization of the top 20 attention heads positioned by layer, head index,
+              and attribution score, with interactive 3D rotation.
+            </p>
+          </div>
+        </div>
+        <div class="insight">
+          <strong>Insight:</strong> The hallucination propagates through a narrow vertical circuit.
+        </div>
+      </div>
+      <a href="05_circuit_graph.html" class="viz-link">View 3D Graph →</a>
+    </article>
+  </div>
+</section>
+
+<div class="back-link">
+  <a href="https://github.com/Shravani018/interpreting-transformer-hallucinations" target="_blank" rel="noopener noreferrer">
+    ← Back to Repository
+  </a>
 </div>
+
+<p class="footer-note">Built for clarity, readability, and a stronger visual hierarchy.</p>
+```
+
+  </main>
 </body>
 </html>
